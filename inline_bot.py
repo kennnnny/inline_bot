@@ -248,9 +248,7 @@ def get_driver_by_config(config_dict, driver_type):
         print("cc_number", config_dict["cc_number"])
         print("cc_exp", config_dict["cc_exp"])
         print("cc_ccv", config_dict["cc_ccv"])
-        
-        if 'cc_auto_submit' in config_dict:
-            print("cc_auto_submit", config_dict["cc_auto_submit"])
+        print("cc_auto_submit", config_dict["cc_auto_submit"])
 
         homepage = config_dict["homepage"]
         adult_picker = config_dict["adult_picker"]
@@ -267,9 +265,7 @@ def get_driver_by_config(config_dict, driver_type):
         cc_number = config_dict["cc_number"]
         cc_exp = config_dict["cc_exp"]
         cc_ccv = config_dict["cc_ccv"]
-
-        if 'cc_auto_submit' in config_dict:
-            cc_auto_submit = config_dict["cc_auto_submit"]
+        cc_auto_submit = config_dict["cc_auto_submit"]
 
         # entry point
         if homepage is None:
@@ -510,6 +506,8 @@ def checkbox_agree(el_form, by_method, query_keyword, assign_method='CLICK'):
         else:
             pass
             #print("text not empty, value:", text_name_value)
+    else:
+        ret = True
 
     return ret
 
@@ -595,7 +593,7 @@ def fill_personal_info(driver, config_dict):
         cc_number = config_dict["cc_number"]
         cc_exp = config_dict["cc_exp"]
         cc_ccv = config_dict["cc_ccv"]
-        
+        cc_auto_submit = config_dict["cc_auto_submit"]
         iframes = None
         try:
             iframes = el_form.find_elements(By.TAG_NAME, "iframe")
@@ -606,7 +604,7 @@ def fill_personal_info(driver, config_dict):
             iframes = []
 
         #print('start to travel iframes...')
-        cc_check=[False,False,False]
+        cc_check=[True,True,True]
         idx_iframe=0
         for iframe in iframes:
             iframe_url = ""
@@ -832,8 +830,8 @@ def assign_adult_picker(driver, adult_picker, force_adult_picker):
     return is_adult_picker_assigned
 
 def assign_time_picker(driver, book_now_time, book_now_time_alt):
-    show_debug_message = True       # debug.
-    #show_debug_message = False      # online
+    # show_debug_message = True       # debug.
+    show_debug_message = False      # online
 
     ret = False
 
@@ -872,6 +870,7 @@ def assign_time_picker(driver, book_now_time, book_now_time_alt):
                     if show_debug_message:
                         print("booking ALT time:", book_now_time_alt)
                         print("booking ALT target time:", book_time_ret, book_fail_code)
+            ret = book_time_ret
         else:
             if show_debug_message:
                 print("time element length zero...")
@@ -883,8 +882,8 @@ def assign_time_picker(driver, book_now_time, book_now_time_alt):
     return ret
 
 def inline_reg(driver, config_dict):
-    show_debug_message = True       # debug.
-    #show_debug_message = False      # online
+    # show_debug_message = True       # debug.
+    show_debug_message = False      # online
 
     ret = False
 
@@ -912,17 +911,22 @@ def inline_reg(driver, config_dict):
         book_now_time = config_dict["book_now_time"]
         book_now_time_alt = config_dict["book_now_time_alt"]
         if is_adult_picker_assigned:
-            ret = assign_time_picker(driver, book_now_time, book_now_time_alt)
+            is_time_picked = assign_time_picker(driver, book_now_time, book_now_time_alt)
             if show_debug_message:
                 print("assign_time_picker return:", ret)
+
+            # complete booking
+            if is_time_picked:
+                button_query_string = "button[data-cy='book-now-action-button']"
+                ret = button_submit(driver, By.CSS_SELECTOR, button_query_string)
 
     return ret
 
 def main():
     config_dict = get_config_dict()
 
-    driver_type = 'selenium'
-    #driver_type = 'stealth'
+    # driver_type = 'selenium'
+    driver_type = 'stealth'
     driver_type = 'undetected_chromedriver'
 
     driver = get_driver_by_config(config_dict, driver_type)
