@@ -109,7 +109,7 @@ def load_chromdriver_normal(webdriver_path, driver_type, adblock_plus_enable):
     chrome_service = Service(chromedriver_path)
 
     # method 6: Selenium Stealth
-    driver = webdriver.Chrome(service=chrome_service, options=chrome_options, desired_capabilities=caps)
+    driver = webdriver.Chrome(service=chrome_service, options=chrome_options)
 
     if driver_type=="stealth":
         from selenium_stealth import stealth
@@ -195,7 +195,7 @@ def load_chromdriver_uc(webdriver_path, adblock_plus_enable):
 
     return driver
 
-def close_browser_tabs(driver):        
+def close_browser_tabs(driver):
     if not driver is None:
         try:
             window_handles_count = len(driver.window_handles)
@@ -237,7 +237,7 @@ def get_driver_by_config(config_dict, driver_type):
         print("adult_picker", config_dict["adult_picker"])
         print("book_now_time", config_dict["book_now_time"])
         print("book_now_time_alt", config_dict["book_now_time_alt"])
-        
+
         print("user_name", config_dict["user_name"])
         print("user_gender", config_dict["user_gender"])
         print("user_phone", config_dict["user_phone"])
@@ -254,7 +254,7 @@ def get_driver_by_config(config_dict, driver_type):
         adult_picker = config_dict["adult_picker"]
         book_now_time = config_dict["book_now_time"]
         book_now_time_alt = config_dict["book_now_time_alt"]
-        
+
         user_name = config_dict["user_name"]
         user_gender = config_dict["user_gender"]
         user_phone = config_dict["user_phone"]
@@ -342,7 +342,7 @@ def is_House_Rules_poped(driver):
 
     if houses_rules_button is not None:
         #print("found disabled houses_rules_button, enable it.")
-        
+
         # method 1: force enable, fail.
         # driver.execute_script("arguments[0].disabled = false;", commit)
 
@@ -352,17 +352,17 @@ def is_House_Rules_poped(driver):
             houses_rules_scroll = house_rules_div.find_element(By.XPATH, '//div[@data-show-scrollbar="true"]/div/div')
         except Exception as exc:
             pass
-        
+
         if houses_rules_scroll is not None:
             try:
                 if houses_rules_scroll.is_enabled():
                     #print("found enabled scroll bar. scroll to end.")
                     houses_rules_scroll.click()
-                    
+
                     #PLAN A -- fail.
                     #print('send end key.')
                     #houses_rules_scroll.send_keys(Keys.END)
-                    
+
                     #PLAN B -- OK.
                     #driver.execute_script("arguments[0].scrollTo(0, arguments[0].scrollHeight);", houses_rules_scroll)
                     driver.execute_script("arguments[0].innerHTML='';", houses_rules_scroll);
@@ -378,7 +378,7 @@ def is_House_Rules_poped(driver):
                 houses_rules_is_visible = True
         except Exception as exc:
             pass
-        
+
         if houses_rules_is_visible:
             print("found enabled houses_rules_button.")
             try:
@@ -408,7 +408,7 @@ def button_submit(el_form, by_method, query_keyword):
                 is_visible = True
         except Exception as exc:
             pass
-        
+
         if is_visible:
             try:
                 el_text_name.click()
@@ -426,7 +426,7 @@ def button_submit(el_form, by_method, query_keyword):
 def click_radio(el_form, by_method, query_keyword, assign_method='CLICK'):
     is_radio_selected = False
     # user name
-    
+
     el_text_name = None
     try:
         el_text_name = el_form.find_element(by_method, query_keyword)
@@ -471,7 +471,7 @@ def click_radio(el_form, by_method, query_keyword, assign_method='CLICK'):
 def checkbox_agree(el_form, by_method, query_keyword, assign_method='CLICK'):
     ret = False
     # user name
-    
+
     el_text_name = None
     el_label_name = None
 
@@ -583,8 +583,8 @@ def fill_personal_info(driver, config_dict):
         ret = fill_text_by_default(el_form, By.ID, 'name', user_name)
         ret = fill_text_by_default(el_form, By.ID, 'phone', user_phone)
         ret = fill_text_by_default(el_form, By.ID, 'email', user_email)
-        
-        
+
+
         cardholder_name = config_dict["cardholder_name"]
         cardholder_email = config_dict["cardholder_email"]
         ret = fill_text_by_default(el_form, By.ID, 'cardholder-name', cardholder_name)
@@ -677,7 +677,7 @@ def fill_personal_info(driver, config_dict):
 
     return ret
 
-# reutrn: 
+# reutrn:
 #   False: book fail.
 #   True: one of book item is seleted, must to do nothing.
 # fail_code:
@@ -699,7 +699,7 @@ def book_time(el_time_picker_list, target_time):
                 is_visible = True
         except Exception as exc:
             pass
-        
+
         time_picker_text = None
         if is_visible:
             is_one_of_time_picket_viewable = True
@@ -707,7 +707,7 @@ def book_time(el_time_picker_list, target_time):
                 time_picker_text = str(el_time_picker.text)
             except Exception as exc:
                 pass
-        
+
         if time_picker_text is None:
             time_picker_text = ""
 
@@ -721,7 +721,7 @@ def book_time(el_time_picker_list, target_time):
                     pass
                 if button_class_string is None:
                     button_class_string = ""
-                
+
                 is_button_able_to_select = True
                 if "selected" in button_class_string:
                     is_button_able_to_select = False
@@ -739,7 +739,7 @@ def book_time(el_time_picker_list, target_time):
 
                         # no need more loop.
                         break
-                
+
                 if is_button_able_to_select:
                     if target_time in time_picker_text:
                         is_able_to_click = True
@@ -783,7 +783,7 @@ def assign_adult_picker(driver, adult_picker, force_adult_picker):
         el_adult_picker = driver.find_element(By.ID, 'adult-picker')
     except Exception as exc:
         pass
-    
+
     if not el_adult_picker is None:
         is_visible = False
         try:
@@ -802,7 +802,7 @@ def assign_adult_picker(driver, adult_picker, force_adult_picker):
 
             if selected_value is None:
                 selected_value = ""
-            
+
             if selected_value == "":
                 selected_value = "0"
 
@@ -852,11 +852,11 @@ def assign_time_picker(driver, book_now_time, book_now_time_alt):
         if el_time_picker_list_size > 0:
             # default use main time.
             book_time_ret, book_fail_code = book_time(el_time_picker_list, book_now_time)
-            
+
             if show_debug_message:
                 print("booking target time:", book_now_time)
                 print("book_time_ret, book_fail_code:", book_time_ret, book_fail_code)
-            
+
             if not book_time_ret:
                 if book_fail_code >= 200:
                     # [200,201] ==> retry
@@ -878,7 +878,7 @@ def assign_time_picker(driver, book_now_time, book_now_time_alt):
         if show_debug_message:
             print("not found time elements.")
 
-    
+
     return ret
 
 def inline_reg(driver, config_dict):
@@ -926,7 +926,7 @@ def main():
     config_dict = get_config_dict()
 
     # driver_type = 'selenium'
-    driver_type = 'stealth'
+    # driver_type = 'stealth'
     driver_type = 'undetected_chromedriver'
 
     driver = get_driver_by_config(config_dict, driver_type)
@@ -1015,7 +1015,7 @@ def main():
             # not is above case, print exception.
             print("Exception:", str_exc)
             pass
-            
+
         if url is None:
             continue
         else:
