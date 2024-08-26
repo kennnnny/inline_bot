@@ -36,7 +36,7 @@ warnings.simplefilter('ignore',InsecureRequestWarning)
 import ssl
 ssl._create_default_https_context = ssl._create_unverified_context
 
-CONST_APP_VERSION = "MaxinlineBot (2022.12.11)"
+CONST_APP_VERSION = "K inlineBot (2024.08.03)"
 CONST_HOMEPAGE_DEFAULT = "https://tixcraft.com"
 
 def get_app_root():
@@ -231,24 +231,24 @@ def get_driver_by_config(config_dict, driver_type):
 
     if not config_dict is None:
         # output config:
-        print("maxbot app version", CONST_APP_VERSION)
-        print("python version", platform.python_version())
-        print("homepage", config_dict["homepage"])
-        print("adult_picker", config_dict["adult_picker"])
-        print("book_now_time", config_dict["book_now_time"])
-        print("book_now_time_alt", config_dict["book_now_time_alt"])
+        # print("app version", CONST_APP_VERSION)
+        # print("python version", platform.python_version())
+        # print("homepage", config_dict["homepage"])
+        # print("adult_picker", config_dict["adult_picker"])
+        # print("book_now_time", config_dict["book_now_time"])
+        # print("book_now_time_alt", config_dict["book_now_time_alt"])
 
-        print("user_name", config_dict["user_name"])
-        print("user_gender", config_dict["user_gender"])
-        print("user_phone", config_dict["user_phone"])
-        print("user_email", config_dict["user_email"])
+        # print("user_name", config_dict["user_name"])
+        # print("user_gender", config_dict["user_gender"])
+        # print("user_phone", config_dict["user_phone"])
+        # print("user_email", config_dict["user_email"])
 
-        print("cardholder_name", config_dict["cardholder_name"])
-        print("cardholder_email", config_dict["cardholder_email"])
-        print("cc_number", config_dict["cc_number"])
-        print("cc_exp", config_dict["cc_exp"])
-        print("cc_ccv", config_dict["cc_ccv"])
-        print("cc_auto_submit", config_dict["cc_auto_submit"])
+        # print("cardholder_name", config_dict["cardholder_name"])
+        # print("cardholder_email", config_dict["cardholder_email"])
+        # print("cc_number", config_dict["cc_number"])
+        # print("cc_exp", config_dict["cc_exp"])
+        # print("cc_ccv", config_dict["cc_ccv"])
+        # print("cc_auto_submit", config_dict["cc_auto_submit"])
 
         homepage = config_dict["homepage"]
         adult_picker = config_dict["adult_picker"]
@@ -307,7 +307,7 @@ def get_driver_by_config(config_dict, driver_type):
                 print('oh no not again, WebDriverException')
                 print('WebDriverException:', exce2)
             except Exception as exce1:
-                print('get URL Exception:', exec1)
+                print('get URL Exception:', exce1)
                 pass
     else:
         print("Config error!")
@@ -417,7 +417,7 @@ def button_submit(el_form, by_method, query_keyword):
                 #print(exc)
 
                 try:
-                    driver.execute_script("arguments[0].click();", el_text_name);
+                    driver.execute_script("arguments[0].click();", el_text_name)
                 except Exception as exc:
                     print("try javascript click on el_text_%s, still fail." % (query_keyword))
                     #print(exc)
@@ -896,7 +896,7 @@ def inline_reg(driver, config_dict):
         adult_picker = config_dict["adult_picker"]
         force_adult_picker = config_dict["force_adult_picker"]
 
-        # date picker.
+        # adult picker.
         is_adult_picker_assigned = assign_adult_picker(driver, adult_picker, force_adult_picker)
         if show_debug_message:
             print("is_adult_picker_assigned:", is_adult_picker_assigned)
@@ -906,6 +906,18 @@ def inline_reg(driver, config_dict):
             is_adult_picker_assigned = assign_adult_picker(driver, adult_picker, force_adult_picker)
             if show_debug_message:
                 print("retry is_adult_picker_assigned:", is_adult_picker_assigned)
+        # date picker.
+        # dateElem, err := driver.FindElement(selenium.ByCSSSelector, fmt.Sprintf("#calendar-picker [data-date='%s']", date))
+
+        # if is_adult_picker_assigned:
+        #     is_date_picked = assign_date_picker(driver, date_picker)
+        #     if show_debug_message:
+        #         print("assign_date_picker return:", ret)
+
+        #     # complete booking
+        #     if is_time_picked:
+        #         button_query_string = "button[data-cy='book-now-action-button']"
+        #         ret = button_submit(driver, By.CSS_SELECTOR, button_query_string)
 
         # time picker.
         book_now_time = config_dict["book_now_time"]
@@ -942,115 +954,105 @@ def main():
     if debugMode:
         print("Start to looping, detect browser url...")
 
-    while True:
-        time.sleep(0.1)
+    try:
+        while True:
+            time.sleep(0.1)
 
-        is_alert_popup = False
+            is_alert_popup = False
 
-        # pass if driver not loaded.
-        if driver is None:
-            print("web driver not accessible!")
-            break
+            # pass if driver not loaded.
+            if driver is None:
+                print("web driver not accessible!")
+                break
 
-        url = ""
-        try:
-            url = driver.current_url
-
-        except NoSuchWindowException:
-            #print('NoSuchWindowException at this url:', url )
-            #print("last_url:", last_url)
+            url = ""
             try:
-                window_handles_count = len(driver.window_handles)
-                if window_handles_count >= 1:
-                    driver.switch_to.window(driver.window_handles[0])
-            except Exception as excSwithFail:
-                pass
+                url = driver.current_url
 
-        except Exception as exc:
-            logger.error('Exception')
-            logger.error(exc, exc_info=True)
-
-            logger.error('Maxbot URL Exception')
-            logger.error(exc, exc_info=True)
-
-            #UnicodeEncodeError: 'ascii' codec can't encode characters in position 63-72: ordinal not in range(128)
-            str_exc = ""
-            try:
-                str_exc = str(exc)
-            except Exception as exc2:
-                pass
-
-            if len(str_exc)==0:
-                str_exc = repr(exc)
-
-            exit_bot_error_strings = [u'Max retries exceeded'
-            , u'chrome not reachable'
-            , u'unable to connect to renderer'
-            , u'failed to check if window was closed'
-            , u'Failed to establish a new connection'
-            , u'Connection refused'
-            , u'disconnected'
-            , u'without establishing a connection'
-            , u'web view not found'
-            ]
-            for each_error_string in exit_bot_error_strings:
-                # for python2
-                # say goodbye to python2
-                '''
+            except NoSuchWindowException:
+                #print('NoSuchWindowException at this url:', url )
+                #print("last_url:", last_url)
                 try:
-                    basestring
-                    if isinstance(each_error_string, unicode):
-                        each_error_string = str(each_error_string)
-                except NameError:  # Python 3.x
-                    basestring = str
-                '''
+                    window_handles_count = len(driver.window_handles)
+                    if window_handles_count >= 1:
+                        driver.switch_to.window(driver.window_handles[0])
+                except Exception as excSwithFail:
+                    pass
 
-                if isinstance(str_exc, str):
-                    if each_error_string in str_exc:
-                        print(u'quit bot')
-                        driver.quit()
-                        sys.exit()
-                        break
+            except Exception as exc:
+                logger.error('Exception')
+                logger.error(exc, exc_info=True)
 
-            # not is above case, print exception.
-            print("Exception:", str_exc)
-            pass
+                logger.error('Maxbot URL Exception')
+                logger.error(exc, exc_info=True)
 
-        if url is None:
-            continue
-        else:
-            if len(url) == 0:
+                #UnicodeEncodeError: 'ascii' codec can't encode characters in position 63-72: ordinal not in range(128)
+                str_exc = ""
+                try:
+                    str_exc = str(exc)
+                except Exception as exc2:
+                    pass
+
+                if len(str_exc)==0:
+                    str_exc = repr(exc)
+
+                exit_bot_error_strings = [u'Max retries exceeded'
+                , u'chrome not reachable'
+                , u'unable to connect to renderer'
+                , u'failed to check if window was closed'
+                , u'Failed to establish a new connection'
+                , u'Connection refused'
+                , u'disconnected'
+                , u'without establishing a connection'
+                , u'web view not found'
+                ]
+                for each_error_string in exit_bot_error_strings:
+                    if isinstance(str_exc, str):
+                        if each_error_string in str_exc:
+                            print(u'quit bot')
+                            driver.quit()  # Close the browser and clean up
+                            sys.exit()
+                            break
+
+                # not is above case, print exception.
+                print("Exception:", str_exc)
+                pass
+
+            if url is None:
                 continue
+            else:
+                if len(url) == 0:
+                    continue
 
-        # 說明：輸出目前網址，覺得吵的話，請註解掉這行。
-        if debugMode:
-            print("url:", url)
+            if debugMode:
+                print("url:", url)
 
-        if len(url) > 0 :
-            if url != last_url:
-                print(url)
-            last_url = url
+            if len(url) > 0 :
+                if url != last_url:
+                    print(url)
+                last_url = url
 
-        target_domain_list = ['//inline.app/booking/']
-        for each_domain in target_domain_list:
-            if each_domain in url:
-                current_progress_array = url.split('/')
-                current_progress_length = len(current_progress_array)
-                if current_progress_length >= 6:
-                    branch_field = current_progress_array[5]
-                    if len(branch_field) >= 0:
-                        is_form_mode = False
-                        if current_progress_length >= 7:
-                            if current_progress_array[6] == 'form':
-                                is_form_mode = True
+            target_domain_list = ['//inline.app/booking/']
+            for each_domain in target_domain_list:
+                if each_domain in url:
+                    current_progress_array = url.split('/')
+                    current_progress_length = len(current_progress_array)
+                    if current_progress_length >= 6:
+                        branch_field = current_progress_array[5]
+                        if len(branch_field) >= 0:
+                            is_form_mode = False
+                            if current_progress_length >= 7:
+                                if current_progress_array[6] == 'form':
+                                    is_form_mode = True
 
-                        if is_form_mode:
-                            # fill personal info.
-                            ret = fill_personal_info(driver, config_dict)
-                        else:
-                            # select date.
-                            ret = inline_reg(driver, config_dict)
+                            if is_form_mode:
+                                ret = fill_personal_info(driver, config_dict)
+                            else:
+                                ret = inline_reg(driver, config_dict)
 
+    finally:
+        if driver:
+            driver.quit()  # Ensure that the browser is always closed at the end of the script
 
 if __name__ == "__main__":
     main()

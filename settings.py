@@ -19,7 +19,7 @@ import platform
 import json
 import webbrowser
 
-CONST_APP_VERSION = "MaxinlineBot (2022.12.11)"
+CONST_APP_VERSION = "K lineBot (2024.08.20)"
 
 translate={}
 
@@ -49,7 +49,7 @@ def load_translate():
     en_us["user_gender"] = "Gender"
     en_us["user_tel"] = "Tel"
     en_us["user_email"] = "Email"
-    
+
     en_us["credit_card_holder"] = "Credit Card Holder"
     en_us["cardholder_name"] = "Name"
     en_us["cardholder_email"] = "Email"
@@ -82,13 +82,13 @@ def load_translate():
     zh_tw["force_party_size"] = "覆寫用餐人數"
     zh_tw["booking_time"] = "用餐時段"
     zh_tw["booking_time_alt"] = "用餐時段(備用)"
-    
+
     zh_tw["user_info"] = "聯絡資訊"
     zh_tw["user_name"] = "訂位人姓名"
     zh_tw["user_gender"] = "性別"
     zh_tw["user_tel"] = "訂位人手機號碼"
     zh_tw["user_email"] = "訂位人Email"
-    
+
     zh_tw["credit_card_holder"] = "信用卡持有人"
     zh_tw["cardholder_name"] = "持卡人姓名"
     zh_tw["cardholder_email"] = "持卡人Email"
@@ -164,7 +164,7 @@ def load_translate():
     ja_jp["force_party_size"] = "人数を変更する"
     ja_jp["booking_time"] = "食事時間"
     ja_jp["booking_time_alt"] = "食事時間 (代替)"
-    
+
     ja_jp["user_info"] = "連絡先情報"
     ja_jp["user_name"] = "予約者名"
     ja_jp["user_gender"] = "性別"
@@ -248,7 +248,7 @@ def format_time_string(data):
 def btn_save_act(slience_mode=False):
     app_root = get_app_root()
     config_filepath = os.path.join(app_root, 'settings.json')
-    
+
     config_dict = get_default_config()
 
     # read user input
@@ -356,54 +356,53 @@ def btn_save_act(slience_mode=False):
 
 def btn_run_clicked():
     import subprocess
-
+    global chrome_process
     print('run button pressed.')
     Root_Dir = ""
     save_ret = btn_save_act(slience_mode=True)
     print("save config result:", save_ret)
-    if btn_save_act(slience_mode=True):
+    if save_ret:
         if hasattr(sys, 'frozen'):
             print("execute in frozen mode")
 
-            # check platform here.
             if platform.system() == 'Darwin':
-                 subprocess.Popen("./inline_bot.py", shell=True)
-            if platform.system() == 'Windows':
-                subprocess.Popen("inline_bot.exe", shell=True)
+                chrome_process = subprocess.Popen("./inline_bot.py", shell=True)
+            elif platform.system() == 'Windows':
+                chrome_process = subprocess.Popen("inline_bot.exe", shell=True)
         else:
             interpreter_binary = 'python'
             interpreter_binary_alt = 'python3'
             if platform.system() == 'Darwin':
-                # try python3 before python.
                 interpreter_binary = 'python3'
                 interpreter_binary_alt = 'python'
             print("execute in shell mode.")
             working_dir = os.path.dirname(os.path.realpath(__file__))
-            #print("script path:", working_dir)
-            #messagebox.showinfo(title="Debug0", message=working_dir)
 
-            # some python3 binary, running in 'python' command.
             try:
                 print('try', interpreter_binary)
-                s=subprocess.Popen([interpreter_binary, 'inline_bot.py'], cwd=working_dir)
-                #s=subprocess.Popen(['./chrome_tixcraft'], stdout=subprocess.PIPE, stderr=subprocess.PIPE, cwd=working_dir)
-                #s=subprocess.run(['python3', 'chrome_tixcraft.py'], cwd=working_dir)
-                #messagebox.showinfo(title="Debug1", message=str(s))
+                chrome_process = subprocess.Popen([interpreter_binary, 'inline_bot.py'], cwd=working_dir)
             except Exception as exc:
                 print('try', interpreter_binary_alt)
                 try:
-                    s=subprocess.Popen([interpreter_binary_alt, 'inline_bot.py'], cwd=working_dir)
+                    chrome_process = subprocess.Popen([interpreter_binary_alt, 'inline_bot.py'], cwd=working_dir)
                 except Exception as exc:
-                    msg=str(exc)
-                    print("exeption:", msg)
-                    #messagebox.showinfo(title="Debug2", message=msg)
+                    msg = str(exc)
+                    print("exception:", msg)
                     pass
 
 def open_url(url):
     webbrowser.open_new(url)
 
 def btn_exit_clicked():
-    root.destroy()
+    global chrome_process
+    try:
+        if chrome_process:
+            chrome_process.terminate()  # 嘗試關閉進程
+            chrome_process.wait()  # 等待進程終止
+    except Exception as e:
+        print(f"Error terminating process: {e}")
+    finally:
+        root.destroy()
 
 def callbackLanguageOnChange(event):
     applyNewLanguage()
@@ -497,9 +496,6 @@ def applyNewLanguage():
     btn_run.config(text=translate[language_code]["run"])
     btn_save.config(text=translate[language_code]["save"])
     btn_exit.config(text=translate[language_code]["exit"])
-
-def btn_exit_clicked():
-    root.destroy()
 
 # PS: nothing need to do, at current process.
 def callbackUserGenderOnChange(event):
