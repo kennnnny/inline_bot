@@ -41,6 +41,7 @@ def load_translate():
 
     en_us["party_size"] = "Party size"
     en_us["force_party_size"] = "Force Party size"
+    en_us["book_date"] = "Date"
     en_us["booking_time"] = "Time"
     en_us["booking_time_alt"] = "Time (Alternative)"
 
@@ -80,6 +81,7 @@ def load_translate():
 
     zh_tw["party_size"] = "用餐人數"
     zh_tw["force_party_size"] = "覆寫用餐人數"
+    zh_tw["booking_date"] = "用餐日期"
     zh_tw["booking_time"] = "用餐時段"
     zh_tw["booking_time_alt"] = "用餐時段(備用)"
 
@@ -119,6 +121,7 @@ def load_translate():
 
     zh_cn["party_size"] = "用餐人数"
     zh_cn["force_party_size"] = "覆写用餐人数"
+    zh_cn["booking_date"] = "用餐日期"
     zh_cn["booking_time"] = "用餐时段"
     zh_cn["booking_time_alt"] = "用餐时段(备用)"
 
@@ -162,6 +165,7 @@ def load_translate():
 
     ja_jp["party_size"] = "食事人数"
     ja_jp["force_party_size"] = "人数を変更する"
+    ja_jp["booking_date"] = "食事日期"
     ja_jp["booking_time"] = "食事時間"
     ja_jp["booking_time_alt"] = "食事時間 (代替)"
 
@@ -210,6 +214,7 @@ def get_default_config():
     config_dict["homepage"] = CONST_HOMEPAGE_DEFAULT
     config_dict["adult_picker"] = ""
     config_dict["force_adult_picker"] = True
+    config_dict["book_date"] = ""
     config_dict["book_now_time"] = ""
     config_dict["book_now_time_alt"] = ""
     config_dict["user_name"] = ""
@@ -256,6 +261,7 @@ def btn_save_act(slience_mode=False):
     global combo_language
 
     global txt_adult_picker
+    global txt_book_date
     global txt_book_now_time
     global txt_book_now_time_alt
 
@@ -297,7 +303,11 @@ def btn_save_act(slience_mode=False):
             messagebox.showerror("Error", "Please enter party size")
         else:
             config_dict["adult_picker"] = txt_adult_picker.get().strip()
-
+    if is_all_data_correct:
+        config_dict["book_date"] = txt_book_date.get().strip()
+    #     if txt_book_date.get().strip()=="":
+    #         is_all_data_correct = False
+    #         messagebox.showerror("Error", "Please enter book date")
     if is_all_data_correct:
         if txt_book_now_time.get().strip()=="":
             is_all_data_correct = False
@@ -431,6 +441,7 @@ def applyNewLanguage():
 
     global lbl_adult_picker
     global lbl_force_adult_picker
+    global lbl_book_date
     global lbl_book_now_time
     global lbl_book_now_time_alt
 
@@ -463,6 +474,7 @@ def applyNewLanguage():
 
     lbl_adult_picker.config(text=translate[language_code]["party_size"])
     lbl_force_adult_picker.config(text=translate[language_code]["force_party_size"])
+    lbl_book_date.config(text=translate[language_code]["booking_date"])
     lbl_book_now_time.config(text=translate[language_code]["booking_time"])
     lbl_book_now_time_alt.config(text=translate[language_code]["booking_time_alt"])
     lbl_user_profile.config(text=translate[language_code]["user_info"])
@@ -517,6 +529,7 @@ def PreferenctTab(root, config_dict, language_code, UI_PADDING_X):
 
     adult_picker = ""
     force_adult_picker = False
+    book_date = ""
     book_now_time = ""
     book_now_time_alt = ""
 
@@ -535,6 +548,7 @@ def PreferenctTab(root, config_dict, language_code, UI_PADDING_X):
     print("homepage", config_dict["homepage"])
     print("adult_picker", config_dict["adult_picker"])
     print("force_adult_picker", config_dict["force_adult_picker"])
+    print("book_date", config_dict["book_date"])
     print("book_now_time", config_dict["book_now_time"])
     print("book_now_time_alt", config_dict["book_now_time_alt"])
     print("user_name", config_dict["user_name"])
@@ -603,6 +617,18 @@ def PreferenctTab(root, config_dict, language_code, UI_PADDING_X):
     global chk_force_adult_picker
     chk_force_adult_picker = Checkbutton(frame_group_header, text=translate[language_code]["enable"], variable=chk_state_force_adult_picker)
     chk_force_adult_picker.grid(column=1, row=group_row_count, sticky = W)
+
+    group_row_count+=1
+
+    # Date
+    global lbl_book_date
+    lbl_book_date = Label(frame_group_header, text=translate[language_code]["booking_date"])
+    lbl_book_date.grid(column=0, row=group_row_count, sticky = E)
+
+    global txt_book_date
+    txt_book_date_value = StringVar(frame_group_header, value=config_dict["book_date"])
+    txt_book_date = Entry(frame_group_header, width=20, textvariable = txt_book_date_value)
+    txt_book_date.grid(column=1, row=group_row_count, sticky = W)
 
     group_row_count+=1
 

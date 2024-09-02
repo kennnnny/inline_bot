@@ -215,6 +215,7 @@ def get_driver_by_config(config_dict, driver_type):
     adblock_plus_enable = False     # inline is not need adblock plus.
 
     adult_picker = ""
+    book_date = ""
     book_now_time = ""
     book_now_time_alt = ""
 
@@ -252,6 +253,7 @@ def get_driver_by_config(config_dict, driver_type):
 
         homepage = config_dict["homepage"]
         adult_picker = config_dict["adult_picker"]
+        book_date = config_dict["book_date"]
         book_now_time = config_dict["book_now_time"]
         book_now_time_alt = config_dict["book_now_time_alt"]
 
@@ -763,6 +765,7 @@ def book_time(el_time_picker_list, target_time):
                                 try:
                                     driver.execute_script("console.log(\"click to button.\");")
                                     driver.execute_script("arguments[0].click();", el_time_picker)
+                                    ret = True
                                 except Exception as exc:
                                     pass
                         else:
@@ -881,6 +884,49 @@ def assign_time_picker(driver, book_now_time, book_now_time_alt):
 
     return ret
 
+def assign_date_picker(driver, book_date):
+    # show_debug_message = True  # debug.
+    show_debug_message = False  # online
+    ret = False
+    button_query_string = f"#calendar-picker [data-date='{book_date}']"
+
+    try:
+        el_date_picker = driver.find_elements(By.CSS_SELECTOR, button_query_string)
+    except Exception as exc:
+        if show_debug_message:
+            print("find date buttons exception:", exc)
+        return ret
+
+    if el_date_picker:  # 檢查是否找到元素
+        for element in el_date_picker:
+            is_visible = False
+            try:
+                if element.is_enabled() and element.is_displayed():
+                    is_visible = True
+            except Exception as exc:
+                if show_debug_message:
+                    print(f"Checking visibility of element failed: {exc}")
+                continue
+
+            if is_visible:
+                try:
+                    element.click()
+                    ret = True
+                    break  # 成功點擊後，結束循環
+                except Exception as exc:
+                    if show_debug_message:
+                        print(f"Click on element {book_date} failed:", exc)
+                    try:
+                        driver.execute_script("arguments[0].click();", element)
+                        ret = True
+                        break  # 成功點擊後，結束循環
+                    except Exception as exc:
+                        if show_debug_message:
+                            print(f"Javascript click on element {book_date} failed:", exc)
+    return ret
+
+
+    # dateElem, err := driver.FindElement(selenium.ByCSSSelector, fmt.Sprintf("#calendar-picker [data-date='%s']", date))
 def inline_reg(driver, config_dict):
     # show_debug_message = True       # debug.
     show_debug_message = False      # online
@@ -906,31 +952,26 @@ def inline_reg(driver, config_dict):
             is_adult_picker_assigned = assign_adult_picker(driver, adult_picker, force_adult_picker)
             if show_debug_message:
                 print("retry is_adult_picker_assigned:", is_adult_picker_assigned)
+
         # date picker.
-        # dateElem, err := driver.FindElement(selenium.ByCSSSelector, fmt.Sprintf("#calendar-picker [data-date='%s']", date))
-
-        # if is_adult_picker_assigned:
-        #     is_date_picked = assign_date_picker(driver, date_picker)
-        #     if show_debug_message:
-        #         print("assign_date_picker return:", ret)
-
-        #     # complete booking
-        #     if is_time_picked:
-        #         button_query_string = "button[data-cy='book-now-action-button']"
-        #         ret = button_submit(driver, By.CSS_SELECTOR, button_query_string)
-
-        # time picker.
-        book_now_time = config_dict["book_now_time"]
-        book_now_time_alt = config_dict["book_now_time_alt"]
+        book_date = config_dict["book_date"]
         if is_adult_picker_assigned:
-            is_time_picked = assign_time_picker(driver, book_now_time, book_now_time_alt)
+            is_date_picked = assign_date_picker(driver, book_date)
             if show_debug_message:
-                print("assign_time_picker return:", ret)
+                print("assign_date_picker return:", ret)
 
-            # complete booking
-            if is_time_picked:
-                button_query_string = "button[data-cy='book-now-action-button']"
-                ret = button_submit(driver, By.CSS_SELECTOR, button_query_string)
+            # time picker.
+            book_now_time = config_dict["book_now_time"]
+            book_now_time_alt = config_dict["book_now_time_alt"]
+            if is_date_picked:
+                is_time_picked = assign_time_picker(driver, book_now_time, book_now_time_alt)
+                if show_debug_message:
+                    print("assign_time_picker return:", ret)
+
+                # complete booking
+                if is_time_picked:
+                    button_query_string = "button[data-cy='book-now-action-button']"
+                    ret = button_submit(driver, By.CSS_SELECTOR, button_query_string)
 
     return ret
 
