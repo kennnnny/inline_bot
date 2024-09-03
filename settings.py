@@ -12,6 +12,7 @@ except ImportError:
     from tkinter import *
     from tkinter import ttk
     from tkinter import messagebox
+from datetime import datetime
 import os
 import sys
 import json
@@ -250,6 +251,30 @@ def format_time_string(data):
         data = data.replace('：',':')
     return data
 
+def format_date_string(date_str):
+    # 獲取當前年份
+    current_year = datetime.now().year
+
+    # 去除前後空格並標準化日期分隔符
+    date_str = date_str.strip().replace('：', ':').replace('/', '-').replace('.', '-')
+
+    if len(date_str) == 4 and date_str.isdigit():
+        # 如果輸入的是四位數字，假設為MMDD格式
+        month = date_str[:2]
+        day = date_str[2:]
+        date_str = f"{current_year}-{month.zfill(2)}-{day.zfill(2)}"
+    else:
+        # 檢查日期是否包含年份
+        date_parts = date_str.split('-')
+        if len(date_parts) == 2:
+            # 如果只有月和日，補上今年的年份
+            date_str = f"{current_year}-{date_parts[0].zfill(2)}-{date_parts[1].zfill(2)}"
+        elif len(date_parts) == 3:
+            # 如果有年份，確保月份和日期是兩位數
+            date_str = f"{date_parts[0]}-{date_parts[1].zfill(2)}-{date_parts[2].zfill(2)}"
+
+    return date_str
+
 def btn_save_act(slience_mode=False):
     app_root = get_app_root()
     config_filepath = os.path.join(app_root, 'settings.json')
@@ -305,6 +330,7 @@ def btn_save_act(slience_mode=False):
             config_dict["adult_picker"] = txt_adult_picker.get().strip()
     if is_all_data_correct:
         config_dict["book_date"] = txt_book_date.get().strip()
+        config_dict["book_date"] = format_date_string(config_dict["book_date"])
     #     if txt_book_date.get().strip()=="":
     #         is_all_data_correct = False
     #         messagebox.showerror("Error", "Please enter book date")

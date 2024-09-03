@@ -744,34 +744,26 @@ def book_time(el_time_picker_list, target_time):
 
                 if is_button_able_to_select:
                     if target_time in time_picker_text:
-                        is_able_to_click = True
-                        if is_able_to_click:
-                            print('click this time block:', time_picker_text)
+                        print('click this time block:', time_picker_text)
+                        try:
+                            el_time_picker.click()
+                            ret = True
+                        except Exception as exc:
+                            # is not clickable at point
+                            #print("click target time fail.", exc)
+                            # scroll to view ... fail.
+                            #driver.execute_script("console.log(\"scroll to view\");")
+                            #driver.execute_script("arguments[0].scrollIntoView(false);", el_time_picker)
 
+                            # JS
+                            print('click to button using javascript.')
                             try:
-                                el_time_picker.click()
+                                driver.execute_script("console.log(\"click to button.\");")
+                                driver.execute_script("arguments[0].click();", el_time_picker)
                                 ret = True
                             except Exception as exc:
-                                # is not clickable at point
-                                #print("click target time fail.", exc)
                                 fail_code = 201
-
-                                # scroll to view ... fail.
-                                #driver.execute_script("console.log(\"scroll to view\");")
-                                #driver.execute_script("arguments[0].scrollIntoView(false);", el_time_picker)
-
-                                # JS
-                                print('click to button using javascript.')
-                                try:
-                                    driver.execute_script("console.log(\"click to button.\");")
-                                    driver.execute_script("arguments[0].click();", el_time_picker)
-                                    ret = True
-                                except Exception as exc:
-                                    pass
-                        else:
-                            fail_code = 200
-                            print("target button is not viewable or not enable.")
-                            pass
+                                pass
 
         if not is_one_of_time_picket_viewable:
             fail_code = 1
@@ -889,8 +881,27 @@ def assign_date_picker(driver, book_date):
     show_debug_message = False  # online
     ret = False
     button_query_string = f"#calendar-picker [data-date='{book_date}']"
-
+    # book_date 空代表什麼日期都可以
+    if book_date == "":
+        return True
     try:
+        # 首先检查 #calendar-picker 是否有 hidden 属性
+        calendar_picker = driver.find_element(By.ID, "calendar-picker")
+        date_picker = driver.find_element(By.ID, "date-picker")
+        if calendar_picker.get_attribute("hidden") is not None:
+            try:
+                date_picker.click()
+                if show_debug_message:
+                    print("calendar-picker hidden attribute removed.")
+            except Exception as exc:
+                print(f"Failed to click calendar-picker: {exc}")
+                try:
+                    driver.execute_script("arguments[0].click();", date_picker)
+                except Exception as exc2:
+                    if show_debug_message:
+                        print(f"Failed to remove hidden attribute from calendar-picker: {exc2}")
+                    return ret
+        # 查找日期元素
         el_date_picker = driver.find_elements(By.CSS_SELECTOR, button_query_string)
     except Exception as exc:
         if show_debug_message:
@@ -899,6 +910,8 @@ def assign_date_picker(driver, book_date):
 
     if el_date_picker:  # 檢查是否找到元素
         for element in el_date_picker:
+            if element.get_attribute("disabled") is not None:
+                break
             is_visible = False
             try:
                 if element.is_enabled() and element.is_displayed():
