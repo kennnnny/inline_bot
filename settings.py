@@ -433,8 +433,9 @@ def btn_exit_clicked():
     global chrome_process
     try:
         if chrome_process:
-            chrome_process.terminate()  # 嘗試關閉進程
+            chrome_process.kill()  # 嘗試關閉進程
             chrome_process.wait()  # 等待進程終止
+            chrome_process = None
     except Exception as e:
         print(f"Error terminating process: {e}")
     finally:
@@ -970,6 +971,19 @@ def get_action_bar(root,language_code):
 
     return frame_action
 
+def schedule_run():
+    # 這裡設定一個指定的時間點，比如 "2024-09-03 15:00:00"
+    target_time_str = "2024-09-03 15:00:00"
+    target_time = datetime.strptime(target_time_str, "%Y-%m-%d %H:%M:%S")
+
+    # 計算目前時間與目標時間的時間差
+    time_difference = (target_time - datetime.now()).total_seconds()
+
+    # 如果時間差是正的，則設定計時器
+    if time_difference > 0:
+        root.after(int(time_difference * 1000), btn_run_clicked)
+    else:
+        print("指定的時間已經過去了")
 
 def main():
     global translate
@@ -1025,6 +1039,9 @@ def main():
         GUI_SIZE = GUI_SIZE_WINDOWS
 
     root.geometry(GUI_SIZE)
+
+    # 在界面啟動後安排執行btn_run_clicked
+    schedule_run()
 
     # for icon.
     icon_filepath = 'tmp.ico'

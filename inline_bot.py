@@ -1001,6 +1001,7 @@ def main():
     url = ""
     last_url = ""
 
+    submit_ret = False
     debugMode = False
     if 'debug' in config_dict:
         debugMode = config_dict["debug"]
@@ -1100,13 +1101,15 @@ def main():
                                     is_form_mode = True
 
                             if is_form_mode:
-                                ret = fill_personal_info(driver, config_dict)
+                                submit_ret = fill_personal_info(driver, config_dict)
                             else:
                                 ret = inline_reg(driver, config_dict)
-
+            if submit_ret is True:
+                break
     finally:
         if driver:
             driver.quit()  # Ensure that the browser is always closed at the end of the script
+            del driver
 
 if __name__ == "__main__":
     main()
